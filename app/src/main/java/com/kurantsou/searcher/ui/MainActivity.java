@@ -1,16 +1,16 @@
-package com.kurantsou.searcher;
+package com.kurantsou.searcher.ui;
 
-import android.app.ActionBar;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.kurantsou.searcher.R;
 import com.kurantsou.searcher.api.GithubSearchApi;
 import com.kurantsou.searcher.api.SearchApi;
 import com.kurantsou.searcher.models.SearchResult;
+import com.kurantsou.searcher.ui.fragments.ListFragment;
+import com.kurantsou.searcher.ui.fragments.SearchFragment;
 
 import org.json.JSONException;
 
