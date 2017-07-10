@@ -22,32 +22,46 @@ import java.util.List;
 
 public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultListAdapter.SearchResultViewHolder> {
 
-    private List<SearchResult> results;
-    private List<Bitmap> bitmaps;
+    private ArrayList<SearchResult> results;
 
     public SearchResultListAdapter() {
     }
 
-    public SearchResultListAdapter(List<SearchResult> results) {
-        this.results = results;
-        initializeBitmaps();
+    public ArrayList<SearchResult> getResults() {
+        return results;
     }
 
-    private void initializeBitmaps() {
-        if (bitmaps == null)
-            bitmaps = new ArrayList<>();
-        bitmaps.clear();
-        for (int i = 0; i < results.size(); i++)
-            bitmaps.add(null);
+    public SearchResultListAdapter(ArrayList<SearchResult> results) {
+        this.results = results;
     }
 
     @Override
     public SearchResultViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.search_result_item, parent, false);
+        View v = null;
+        switch (viewType) {
+            case 0:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.search_result_item_left_to_right, parent, false);
+                break;
+            case 1:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.search_result_item_right_to_left, parent, false);
+                break;
+            default:
+                break;
+        }
+
+        if (v == null)
+            return null;
+
         SearchResultViewHolder vh = new SearchResultViewHolder(v);
         return vh;
 
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (position + 1) % 2;
     }
 
     @Override
@@ -55,32 +69,11 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
         SearchResult result = results.get(position);
         holder.getTvHeader().setText(result.getHeader());
         holder.getTvText().setText(result.getText());
-        if (bitmaps.size() > position && bitmaps.get(position) != null)
-            holder.getIvImage().setImageBitmap(bitmaps.get(position));
+        if (result.getBitmap() != null)
+            holder.getIvImage().setImageBitmap(result.getBitmap());
         else {
             holder.getIvImage().setImageResource(R.drawable.ic_broken_image_black_24dp);
-            AsyncTask<BitmapLoadParams, Void, Bitmap> task = new AsyncTask<BitmapLoadParams, Void, Bitmap>() {
-                private int position;
-
-                @Override
-                protected Bitmap doInBackground(BitmapLoadParams... bitmapLoadParamses) {
-                    if (bitmapLoadParamses == null || bitmapLoadParamses.length == 0)
-                        return null;
-                    BitmapLoadParams param = bitmapLoadParamses[0];
-                    position = param.getPosition();
-                    Bitmap bitmap = BitmapLoader.getBitmapFromURL(param.getLoadUrl());
-                    return bitmap;
-                }
-
-                @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    super.onPostExecute(bitmap);
-                    if (bitmap == null)
-                        return;
-                    bitmaps.set(position, bitmap);
-                    notifyItemChanged(position);
-                }
-            };
+            AsyncBitmapLoader task = new AsyncBitmapLoader();
             task.execute(new BitmapLoadParams(result.getImageUrl(), position));
         }
     }
@@ -90,9 +83,8 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
         return results == null ? 0 : results.size();
     }
 
-    public void setResults(List<SearchResult> results) {
+    public void setResults(ArrayList<SearchResult> results) {
         this.results = results;
-        initializeBitmaps();
         notifyDataSetChanged();
     }
 
@@ -146,6 +138,32 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
 
         public void setPosition(int position) {
             this.position = position;
+        }
+    }
+
+    private class AsyncBitmapLoader extends AsyncTask<BitmapLoadParams, Void, Bitmap>{
+        private int position;
+
+        @Override
+        protected Bitmap doInBackground(BitmapLoadParams... bitmapLoadParamses) {
+            if (bitmapLoadParamses == null || bitmapLoadParamses.length == 0)
+                return null;
+            BitmapLoadParams param = bitmapLoadParamses[0];
+            position = param.getPosition();
+            Bitmap bitmap = BitmapLoader.getBitmapFromURL(param.getLoadUrl());
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            if (bitmap == null)
+                return;
+            if (results != null && results.size() > position) {
+                results.get(position).setBitmap(bitmap);
+            }
+                notifyItemChanged(position);
+
         }
     }
 }

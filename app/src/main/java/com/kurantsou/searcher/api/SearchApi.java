@@ -21,7 +21,7 @@ import java.util.List;
  */
 
 public abstract class SearchApi {
-    public List<SearchResult> getSearchResult(String searchText) throws MalformedURLException, IOException, JSONException {
+    public ArrayList<SearchResult> getSearchResult(String searchText) throws MalformedURLException, IOException, JSONException {
         URL url = new URL(getRequestUrl(searchText));
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
@@ -39,7 +39,7 @@ public abstract class SearchApi {
         return getDeserializedAnswer(jsonObject);
     }
 
-    protected abstract List<SearchResult> getDeserializedAnswer(JSONObject jsonObject) throws JSONException;
+    protected abstract ArrayList<SearchResult> getDeserializedAnswer(JSONObject jsonObject) throws JSONException;
 
     public abstract String getRequestUrl(String searchText);
 }

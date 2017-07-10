@@ -18,7 +18,7 @@ public class GithubSearchApi extends SearchApi {
     private static final String URL_STRING = "https://api.github.com/search/users?q=%s";
 
     @Override
-    protected List<SearchResult> getDeserializedAnswer(JSONObject jsonObject) throws JSONException {
+    protected ArrayList<SearchResult> getDeserializedAnswer(JSONObject jsonObject) throws JSONException {
         ArrayList<SearchResult> results = new ArrayList<>();
 
         JSONArray jsonArray = jsonObject.getJSONArray("items");
